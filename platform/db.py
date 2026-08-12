@@ -1,15 +1,31 @@
 import hashlib
 import mimetypes
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from sqlmodel import SQLModel, Field, Session, create_engine, select
-
+# .ingest must be imported before sqlmodel/sqlalchemy: ingest.py contains the
+# fix for the `platform` package-name collision (see its top-of-file comment),
+# and that fix has to run before anything that does a plain `import platform`
+# internally -- sqlalchemy.util.compat is one such place. Importing .ingest
+# first (while `platform` is still intact as a package, __path__ and all)
+# also means this fix doesn't need to be duplicated here.
 from .ingest import ingest_folder, SUPPORTED_EXTS
 
-DATABASE_URL = "postgresql://myuser:mypassword@localhost:5432/mydb"
+from sqlmodel import SQLModel, Field, Session, create_engine, select
+from dotenv import load_dotenv
+
+load_dotenv()  # reads .env in the current working directory, if present
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not set. Create a .env file in the project root "
+        "(see .env.example) with a line like:\n"
+        '  DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/mydb'
+    )
 
 engine = create_engine(DATABASE_URL, echo=False)
 

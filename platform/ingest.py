@@ -2,8 +2,36 @@ from pathlib import Path
 from typing import List, Dict, Any
 import csv
 
+# --- shim: must run before any third-party import, which is why it's first ---
+import sys, importlib.util, sysconfig, os
+
+def _restore_stdlib_platform():
+    """
+    This package is named `platform`, so `python -m platform.ingest` makes
+    Python cache THIS package as sys.modules['platform'], shadowing the
+    real standard-library module for the rest of the process. Any dependency
+    (unstructured, its OCR/magic-detection libs, etc.) that does `import
+    platform` internally then breaks. Fix: load the real stdlib platform.py
+    from disk by path and swap sys.modules['platform'] to point at it,
+    before anything else gets a chance to import the broken one.
+    """
+    stdlib_dir = sysconfig.get_path("stdlib")
+    real_path = os.path.join(stdlib_dir, "platform.py")
+    if not os.path.exists(real_path):
+        return
+    spec = importlib.util.spec_from_file_location("platform", real_path)
+    real_platform = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(real_platform)
+    sys.modules["platform"] = real_platform
+
+_restore_stdlib_platform()
+# --- end shim ---
+
 from unstructured.partition.auto import partition
 from openpyxl import load_workbook
+import pypdfium2 as pdfium
+import pytesseract
+from PIL import Image
 
 MAX_CHUNK_CHARS = 1000
 
@@ -11,6 +39,7 @@ SUPPORTED_UNSTRUCTURED_EXTS = {".pdf", ".docx", ".pptx"}
 SUPPORTED_EXTS = SUPPORTED_UNSTRUCTURED_EXTS | {".xlsx", ".csv"}
 
 OCR_MIN_CHARS_THRESHOLD = 20
+TESSERACT_MIN_CHARS_THRESHOLD = 20  # below this, escalate a page from Tesseract to docTR
 
 def _make_chunk(text: str, source: str, chunk_index: int, **extra: Any) -> Dict[str, Any]:
     chunk = {
@@ -69,17 +98,94 @@ def _elements_to_chunks(elements, path: Path, ocr_used: bool = False) -> List[Di
     return chunks
 
 
+_doctr_model = None  # lazy singleton -- the layout-aware model only loads if a page actually needs it
+
+def _get_doctr_model():
+    """Load docTR's OCR model on first use only (it's slow to load and most pages won't need it)."""
+    global _doctr_model
+    if _doctr_model is None:
+        os.environ.setdefault("USE_TORCH", "1")
+        from doctr.models import ocr_predictor
+        print("[doctr] loading layout-aware OCR model (first use only, downloads weights if needed)...")
+        _doctr_model = ocr_predictor(pretrained=True)
+    return _doctr_model
+
+
+def _render_pdf_pages(path: Path, dpi: int = 300) -> List[Image.Image]:
+    """Rasterize every page of a PDF to a PIL image via pypdfium2 -- no Poppler involved."""
+    pdf = pdfium.PdfDocument(str(path))
+    images = []
+    for page in pdf:
+        bitmap = page.render(scale=dpi / 72)
+        images.append(bitmap.to_pil())
+    return images
+
+
+def _ocr_pdf_file(path: Path) -> List[Dict[str, Any]]:
+    """
+    Two-tier OCR for scanned/no-text PDFs:
+      1. Fast pass -- Tesseract on each rasterized page.
+      2. Layout-aware fallback -- docTR, only for pages where Tesseract found too little text.
+    Rendering (pypdfium2) is shared by both tiers and never touches Poppler.
+    """
+    images = _render_pdf_pages(path)
+    chunks: List[Dict[str, Any]] = []
+    idx = 0
+
+    for page_number, image in enumerate(images, start=1):
+        text = pytesseract.image_to_string(image).strip()
+
+        if len(text) >= TESSERACT_MIN_CHARS_THRESHOLD:
+            for piece in _split_long_text(text, MAX_CHUNK_CHARS):
+                chunks.append(
+                    _make_chunk(
+                        piece, source=str(path), chunk_index=idx,
+                        file_type=".pdf", category="OCR-Text",
+                        page_number=page_number, ocr_used="tesseract",
+                    )
+                )
+                idx += 1
+            continue
+
+        print(f"[ocr-fallback] {path.name} p{page_number}: Tesseract found little text -- trying docTR")
+        import numpy as np
+        model = _get_doctr_model()
+        result = model([np.array(image)])
+        doctr_page = result.pages[0]
+
+        for block in doctr_page.blocks:
+            for line in block.lines:
+                line_text = " ".join(word.value for word in line.words).strip()
+                if not line_text:
+                    continue
+                (x0, y0), (x1, y1) = line.geometry
+                chunks.append(
+                    _make_chunk(
+                        line_text, source=str(path), chunk_index=idx,
+                        file_type=".pdf", category="OCR-Text",
+                        page_number=page_number, bbox=[x0, y0, x1, y1],
+                        ocr_used="doctr",
+                    )
+                )
+                idx += 1
+
+    return chunks
+
+
 def ingest_unstructured_file(path: Path) -> List[Dict[str, Any]]:
-    elements = partition(filename=str(path))
+    partition_kwargs = {"filename": str(path)}
+    if path.suffix.lower() == ".pdf":
+        partition_kwargs["strategy"] = "fast"  # pdfminer text extraction only -- no Poppler needed
+
+    elements = partition(**partition_kwargs)
     total_chars = sum(len(str(el).strip()) for el in elements)
 
     if path.suffix.lower() == ".pdf" and total_chars < OCR_MIN_CHARS_THRESHOLD:
-        print(f"[ocr] {path.name}: little/no text found ({total_chars} chars) -- retrying with Tesseract OCR")
+        print(f"[ocr] {path.name}: little/no text found ({total_chars} chars) -- rasterizing + Tesseract/docTR OCR")
         try:
-            elements = partition(filename=str(path), strategy="ocr_only")
-            return _elements_to_chunks(elements, path, ocr_used=True)
+            return _ocr_pdf_file(path)
         except Exception as e:
-            print(f"[ocr-failed] {path.name}: OCR retry failed ({e}); keeping original (empty) extraction")
+            print(f"[ocr-failed] {path.name}: OCR failed ({e}); keeping original (empty) extraction")
 
     return _elements_to_chunks(elements, path, ocr_used=False)
 
