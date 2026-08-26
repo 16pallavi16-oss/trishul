@@ -1,31 +1,7 @@
 from pathlib import Path
 from typing import List, Dict, Any
 import csv
-
-# --- shim: must run before any third-party import, which is why it's first ---
-import sys, importlib.util, sysconfig, os
-
-def _restore_stdlib_platform():
-    """
-    This package is named `platform`, so `python -m platform.ingest` makes
-    Python cache THIS package as sys.modules['platform'], shadowing the
-    real standard-library module for the rest of the process. Any dependency
-    (unstructured, its OCR/magic-detection libs, etc.) that does `import
-    platform` internally then breaks. Fix: load the real stdlib platform.py
-    from disk by path and swap sys.modules['platform'] to point at it,
-    before anything else gets a chance to import the broken one.
-    """
-    stdlib_dir = sysconfig.get_path("stdlib")
-    real_path = os.path.join(stdlib_dir, "platform.py")
-    if not os.path.exists(real_path):
-        return
-    spec = importlib.util.spec_from_file_location("platform", real_path)
-    real_platform = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(real_platform)
-    sys.modules["platform"] = real_platform
-
-_restore_stdlib_platform()
-# --- end shim ---
+import os
 
 from unstructured.partition.auto import partition
 from openpyxl import load_workbook
@@ -293,13 +269,13 @@ def ingest_folder(folder_path: str, recursive: bool = True) -> List[Dict[str, An
 
 
 if __name__ == "__main__":
-    import sys
-    import json
+      import sys
+      sys.modules.setdefault("platform.ingest", sys.modules["__main__"])
+      from . import db
 
-    if len(sys.argv) != 2:
-        print("Usage: python ingest.py <folder_path>")
-        sys.exit(1)
+      if len(sys.argv) != 2:
+          print("Usage: python -m platform.ingest <folder_path>")
+          sys.exit(1)
 
-    result = ingest_folder(sys.argv[1])
-    print(f"\nTotal chunks: {len(result)}")
-    print(json.dumps(result[:3], indent=2))
+      db.init_db()
+      db.persist_folder(sys.argv[1])

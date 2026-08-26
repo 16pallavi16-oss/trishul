@@ -6,18 +6,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# .ingest must be imported before sqlmodel/sqlalchemy: ingest.py contains the
-# fix for the `platform` package-name collision (see its top-of-file comment),
-# and that fix has to run before anything that does a plain `import platform`
-# internally -- sqlalchemy.util.compat is one such place. Importing .ingest
-# first (while `platform` is still intact as a package, __path__ and all)
-# also means this fix doesn't need to be duplicated here.
+# This package is named `platform`, colliding with the Python standard
+# library module of the same name -- see _compat.py. Unlike earlier
+# versions of this fix, import order no longer matters: _compat patches the
+# missing stdlib functions onto the existing package object instead of
+# replacing it, so this can be imported anywhere relative to the other
+# local imports below.
+
+from .embed import embed_texts
 from .ingest import ingest_folder, SUPPORTED_EXTS
 
 from sqlmodel import SQLModel, Field, Session, create_engine, select
+from sqlalchemy import Column, ARRAY, Float
 from dotenv import load_dotenv
 
-load_dotenv()  # reads .env in the current working directory, if present
+load_dotenv()
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
@@ -49,6 +52,11 @@ class Chunk(SQLModel, table=True):
     text: str
     page: Optional[int] = None
     bbox: Optional[str] = None   # stored as JSON string: [x0, y0, x1, y1]
+    embedding: Optional[List[float]] = Field(default=None, sa_column=Column(ARRAY(Float)))
+    # nomic-embed-text produces 768-dim vectors. Stored as a plain Postgres
+    # float array here -- this is the "source of truth" copy. vectorstore.py
+    # mirrors it into a proper pgvector column (chunk_vector table) and
+    # Qdrant for actual similarity search / comparison.
 
 def _file_hash(path: Path) -> str:
     sha256 = hashlib.sha256()
@@ -112,7 +120,10 @@ def persist_file_and_chunks(path: Path, file_chunks: List[Dict[str, Any]], sessi
         session.commit()
         session.refresh(source_file)  # populates source_file.id
 
-    for c in file_chunks:
+    texts = [c["text"] for c in file_chunks]
+    embeddings = embed_texts(texts)
+
+    for c, emb in zip(file_chunks, embeddings):
         session.add(
             Chunk(
                 file_id=source_file.id,
@@ -120,6 +131,7 @@ def persist_file_and_chunks(path: Path, file_chunks: List[Dict[str, Any]], sessi
                 text=c["text"],
                 page=c.get("page_number"),
                 bbox=_extract_bbox(c),
+                embedding=emb,
             )
         )
     session.commit()
@@ -143,7 +155,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 2:
-        print("Usage: python db.py <folder_path>")
+        print("Usage: python -m platform.db <folder_path>")
         sys.exit(1)
 
     init_db()

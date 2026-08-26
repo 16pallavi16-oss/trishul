@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import requests 
 from fastapi.middleware.cors import CORSMiddleware
+from platforms.search import hybrid_search
 
 app = FastAPI()
 
@@ -27,4 +28,8 @@ def hello():
     response = requests.post(OLLAMA_URL, json=data)
     result = response.json()
     return {"ollama": result["response"]}
+
+@app.get("/search")
+def search(q: str, k: int = 5, method: str = "rrf", pool: int = 20, dense_weight: float = 0.5, lexical_weight: float = 0.5):
+    return hybrid_search(q, k=k, method=method, pool=pool, dense_weight=dense_weight, lexical_weight=lexical_weight)
 
