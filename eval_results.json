@@ -1,0 +1,738 @@
+[
+  {
+    "query": "What was Marriott's revenue growth last year?",
+    "qdrant_ids": [
+      1127,
+      1497,
+      1622,
+      756,
+      139
+    ],
+    "pgvector_ids": [
+      1127,
+      1497,
+      1622,
+      756,
+      139
+    ],
+    "lexical_ids": [
+      974,
+      41,
+      240,
+      398,
+      603
+    ],
+    "hybrid_ids": [
+      1127,
+      974,
+      1497,
+      41,
+      1622
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "RevPAR performance by region",
+    "qdrant_ids": [
+      128,
+      860,
+      129,
+      130,
+      136
+    ],
+    "pgvector_ids": [
+      128,
+      860,
+      129,
+      130,
+      136
+    ],
+    "lexical_ids": [
+      487,
+      1228,
+      1229,
+      123,
+      488
+    ],
+    "hybrid_ids": [
+      123,
+      860,
+      487,
+      1229,
+      136
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.25,
+    "lexical_hybrid_overlap": 0.42857142857142855,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Risk factors related to competition in the hospitality industry",
+    "qdrant_ids": [
+      53,
+      1517,
+      1140,
+      410,
+      771
+    ],
+    "pgvector_ids": [
+      53,
+      1517,
+      1140,
+      410,
+      771
+    ],
+    "lexical_ids": [
+      1556,
+      1474,
+      48,
+      1533,
+      729
+    ],
+    "hybrid_ids": [
+      1533,
+      1140,
+      53,
+      1556,
+      1517
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Cancellation policy",
+    "qdrant_ids": [
+      59,
+      414,
+      416,
+      777,
+      1520
+    ],
+    "pgvector_ids": [
+      59,
+      414,
+      416,
+      777,
+      1520
+    ],
+    "lexical_ids": [
+      1512
+    ],
+    "hybrid_ids": [
+      1512,
+      59,
+      414,
+      416,
+      777
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.6666666666666666,
+    "lexical_hybrid_overlap": 0.2,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Impact of the pandemic on global travel demand",
+    "qdrant_ids": [
+      1514,
+      1597,
+      1542,
+      1518,
+      411
+    ],
+    "pgvector_ids": [
+      1514,
+      1597,
+      1542,
+      1518,
+      411
+    ],
+    "lexical_ids": [
+      1514,
+      411,
+      1142,
+      772,
+      54
+    ],
+    "hybrid_ids": [
+      1514,
+      411,
+      1142,
+      54,
+      772
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.25,
+    "dense_hybrid_overlap": 0.25,
+    "lexical_hybrid_overlap": 1.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Number of hotel properties worldwide",
+    "qdrant_ids": [
+      865,
+      1610,
+      1219,
+      1609,
+      859
+    ],
+    "pgvector_ids": [
+      865,
+      1610,
+      1219,
+      1609,
+      859
+    ],
+    "lexical_ids": [
+      781,
+      1513,
+      1552,
+      89,
+      1496
+    ],
+    "hybrid_ids": [
+      865,
+      781,
+      1610,
+      1513,
+      1219
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Loyalty program membership growth",
+    "qdrant_ids": [
+      943,
+      1692,
+      211,
+      573,
+      1700
+    ],
+    "pgvector_ids": [
+      943,
+      1692,
+      211,
+      573,
+      1700
+    ],
+    "lexical_ids": [
+      943,
+      1693,
+      1175,
+      1283,
+      194
+    ],
+    "hybrid_ids": [
+      943,
+      1693,
+      1175,
+      211,
+      1283
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.1111111111111111,
+    "dense_hybrid_overlap": 0.25,
+    "lexical_hybrid_overlap": 0.6666666666666666,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Internal controls over financial reporting",
+    "qdrant_ids": [
+      908,
+      177,
+      1276,
+      539,
+      1656
+    ],
+    "pgvector_ids": [
+      1276,
+      539,
+      908,
+      177,
+      1656
+    ],
+    "lexical_ids": [
+      1651,
+      171,
+      533,
+      902,
+      1270
+    ],
+    "hybrid_ids": [
+      909,
+      178,
+      540,
+      1277,
+      1657
+    ],
+    "qdrant_pgvector_top1_match": false,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.0,
+    "lexical_hybrid_overlap": 0.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Executive compensation",
+    "qdrant_ids": [
+      1096,
+      725,
+      365,
+      709,
+      1076
+    ],
+    "pgvector_ids": [
+      1096,
+      725,
+      365,
+      709,
+      1076
+    ],
+    "lexical_ids": [
+      365,
+      725,
+      1096,
+      6,
+      314
+    ],
+    "hybrid_ids": [
+      1096,
+      365,
+      725,
+      709,
+      1450
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.42857142857142855,
+    "dense_hybrid_overlap": 0.6666666666666666,
+    "lexical_hybrid_overlap": 0.42857142857142855,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Climate change risks to the business",
+    "qdrant_ids": [
+      435,
+      1543,
+      79,
+      798,
+      1169
+    ],
+    "pgvector_ids": [
+      435,
+      1543,
+      79,
+      798,
+      1169
+    ],
+    "lexical_ids": [
+      1169,
+      798,
+      435,
+      79,
+      1543
+    ],
+    "hybrid_ids": [
+      435,
+      1169,
+      798,
+      1543,
+      79
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 1.0,
+    "dense_hybrid_overlap": 1.0,
+    "lexical_hybrid_overlap": 1.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Franchise agreements and terms",
+    "qdrant_ids": [
+      1521,
+      66,
+      565,
+      935,
+      420
+    ],
+    "pgvector_ids": [
+      1521,
+      66,
+      565,
+      935,
+      420
+    ],
+    "lexical_ids": [
+      420,
+      1560,
+      66,
+      1527,
+      189
+    ],
+    "hybrid_ids": [
+      66,
+      420,
+      1527,
+      1112,
+      1521
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.25,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.42857142857142855,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Occupancy rate trends",
+    "qdrant_ids": [
+      858,
+      1595,
+      488,
+      1229,
+      124
+    ],
+    "pgvector_ids": [
+      858,
+      1595,
+      488,
+      1229,
+      124
+    ],
+    "lexical_ids": [
+      9,
+      89,
+      444,
+      808,
+      1179
+    ],
+    "hybrid_ids": [
+      858,
+      1595,
+      488,
+      1611,
+      136
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "How does the company manage its debt obligations?",
+    "qdrant_ids": [
+      1640,
+      272,
+      95,
+      1252,
+      1750
+    ],
+    "pgvector_ids": [
+      1640,
+      272,
+      95,
+      1252,
+      1750
+    ],
+    "lexical_ids": [
+      1663,
+      1667,
+      1645,
+      1644,
+      163
+    ],
+    "hybrid_ids": [
+      1640,
+      1663,
+      272,
+      1667,
+      95
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Cybersecurity incident disclosures",
+    "qdrant_ids": [
+      1570,
+      830,
+      832,
+      1198,
+      1217
+    ],
+    "pgvector_ids": [
+      1570,
+      830,
+      832,
+      1198,
+      1217
+    ],
+    "lexical_ids": [
+      830,
+      1200,
+      844,
+      1214,
+      131
+    ],
+    "hybrid_ids": [
+      830,
+      1570,
+      1200,
+      1198,
+      473
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.1111111111111111,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Employee headcount and workforce diversity",
+    "qdrant_ids": [
+      1504,
+      397,
+      40,
+      39,
+      402
+    ],
+    "pgvector_ids": [
+      1504,
+      397,
+      40,
+      39,
+      402
+    ],
+    "lexical_ids": [
+      1449,
+      1450,
+      1735,
+      873,
+      982
+    ],
+    "hybrid_ids": [
+      39,
+      45,
+      1504,
+      1449,
+      397
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.1111111111111111,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Share repurchase program",
+    "qdrant_ids": [
+      483,
+      1224,
+      887,
+      119,
+      852
+    ],
+    "pgvector_ids": [
+      483,
+      1224,
+      887,
+      119,
+      852
+    ],
+    "lexical_ids": [
+      1224,
+      483,
+      119,
+      1591,
+      852
+    ],
+    "hybrid_ids": [
+      483,
+      1224,
+      119,
+      852,
+      1591
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.6666666666666666,
+    "dense_hybrid_overlap": 0.6666666666666666,
+    "lexical_hybrid_overlap": 1.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "What challenges does the company face from labor shortages?",
+    "qdrant_ids": [
+      78,
+      797,
+      1539,
+      434,
+      1499
+    ],
+    "pgvector_ids": [
+      78,
+      797,
+      1539,
+      434,
+      1499
+    ],
+    "lexical_ids": [
+      974,
+      41,
+      240,
+      398,
+      603
+    ],
+    "hybrid_ids": [
+      78,
+      974,
+      797,
+      41,
+      1539
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.0,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.25,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Geographic distribution of brands",
+    "qdrant_ids": [
+      22,
+      1483,
+      735,
+      380,
+      1105
+    ],
+    "pgvector_ids": [
+      22,
+      1483,
+      735,
+      380,
+      1105
+    ],
+    "lexical_ids": [
+      22,
+      1483,
+      380,
+      735,
+      1105
+    ],
+    "hybrid_ids": [
+      22,
+      1483,
+      735,
+      380,
+      1105
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 1.0,
+    "dense_hybrid_overlap": 1.0,
+    "lexical_hybrid_overlap": 1.0,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Litigation and legal proceedings",
+    "qdrant_ids": [
+      117,
+      481,
+      850,
+      1757,
+      849
+    ],
+    "pgvector_ids": [
+      117,
+      481,
+      850,
+      1757,
+      849
+    ],
+    "lexical_ids": [
+      117,
+      481,
+      849,
+      1587,
+      1219
+    ],
+    "hybrid_ids": [
+      117,
+      481,
+      849,
+      1587,
+      1204
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.42857142857142855,
+    "dense_hybrid_overlap": 0.42857142857142855,
+    "lexical_hybrid_overlap": 0.6666666666666666,
+    "lexical_found_nothing": false
+  },
+  {
+    "query": "Sustainability and ESG initiatives",
+    "qdrant_ids": [
+      404,
+      46,
+      1505,
+      1506,
+      49
+    ],
+    "pgvector_ids": [
+      404,
+      46,
+      1505,
+      1506,
+      49
+    ],
+    "lexical_ids": [
+      403,
+      1135,
+      1505,
+      47,
+      1134
+    ],
+    "hybrid_ids": [
+      1505,
+      403,
+      1135,
+      47,
+      1506
+    ],
+    "qdrant_pgvector_top1_match": true,
+    "qdrant_pgvector_overlap": 1.0,
+    "dense_lexical_overlap": 0.1111111111111111,
+    "dense_hybrid_overlap": 0.25,
+    "lexical_hybrid_overlap": 0.6666666666666666,
+    "lexical_found_nothing": false
+  }
+]

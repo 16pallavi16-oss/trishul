@@ -2,6 +2,9 @@ from fastapi import FastAPI
 import requests 
 from fastapi.middleware.cors import CORSMiddleware
 from platforms.search import hybrid_search
+from pydantic import BaseModel
+from platforms.chat import answer_question
+from platforms.threads import init_thread_db
 
 app = FastAPI()
 
@@ -17,6 +20,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class ChatRequest(BaseModel):
+    question: str
+    thread_id: str
+    k: int = 5
+    method: str = "rrf"
+
+@app.on_event("startup")
+def on_startup():
+    init_thread_db()
+
+@app.post("/chat")
+def chat(req: ChatRequest):
+    return answer_question(req.question, req.thread_id, k=req.k, method=req.method)
 
 @app.get("/hello")
 def hello():
