@@ -10,6 +10,7 @@ import pytesseract
 from PIL import Image
 
 MAX_CHUNK_CHARS = 1000
+CSV_ROWS_PER_CHUNK = 100
 
 SUPPORTED_UNSTRUCTURED_EXTS = {".pdf", ".docx", ".pptx"}
 SUPPORTED_EXTS = SUPPORTED_UNSTRUCTURED_EXTS | {".xlsx", ".csv"}
@@ -210,6 +211,8 @@ def ingest_xlsx_file(path: Path) -> List[Dict[str, Any]]:
 def ingest_csv_file(path: Path) -> List[Dict[str, Any]]:
     chunks = []
     idx = 0
+    rows = []
+    first_row_number = None
 
     with open(path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
@@ -218,16 +221,34 @@ def ingest_csv_file(path: Path) -> List[Dict[str, Any]]:
             if not row_text.strip():
                 continue
 
-            chunks.append(
-                _make_chunk(
-                    row_text,
-                    source=str(path),
-                    chunk_index=idx,
-                    file_type=".csv",
-                    row_number=row_number,
-                )
-            )
+            if first_row_number is None:
+                first_row_number = row_number
+            rows.append(row_text)
+
+            if len(rows) < CSV_ROWS_PER_CHUNK:
+                continue
+
+            chunks.append(_make_chunk(
+                "\n".join(rows),
+                source=str(path),
+                chunk_index=idx,
+                file_type=".csv",
+                row_start=first_row_number,
+                row_end=row_number,
+            ))
             idx += 1
+            rows = []
+            first_row_number = None
+
+    if rows:
+        chunks.append(_make_chunk(
+            "\n".join(rows),
+            source=str(path),
+            chunk_index=idx,
+            file_type=".csv",
+            row_start=first_row_number,
+            row_end=first_row_number + len(rows) - 1,
+        ))
 
     return chunks
 
@@ -269,13 +290,13 @@ def ingest_folder(folder_path: str, recursive: bool = True) -> List[Dict[str, An
 
 
 if __name__ == "__main__":
-      import sys
-      sys.modules.setdefault("platform.ingest", sys.modules["__main__"])
-      from . import db
+    import sys
+    sys.modules.setdefault("platforms.ingest", sys.modules["__main__"])
+    from . import db
 
-      if len(sys.argv) != 2:
-          print("Usage: python -m platform.ingest <folder_path>")
-          sys.exit(1)
+    if len(sys.argv) != 2:
+        print("Usage: python -m platforms.ingest <folder_path>")
+        sys.exit(1)
 
-      db.init_db()
-      db.persist_folder(sys.argv[1])
+    db.init_db()
+    db.persist_folder(sys.argv[1])

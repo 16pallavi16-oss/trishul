@@ -5,7 +5,7 @@ import requests
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "nomic-embed-text")
-EMBED_BATCH_SIZE = 64  # texts per HTTP request, keeps requests reasonably sized
+EMBED_BATCH_SIZE = 128  # texts per HTTP request, keeps requests reasonably sized
 
 
 def embed_texts(texts: List[str]) -> List[Optional[List[float]]]:

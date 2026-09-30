@@ -47,10 +47,22 @@ class Message(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class Feedback(SQLModel, table=True):
+    __tablename__ = "feedback"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    message_id: int = Field(foreign_key="message.id", index=True)
+    rating: str  # "up" | "down"
+    comment: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 def init_thread_db() -> None:
     # tables= scopes this to just these two, regardless of what else might
     # be registered on SQLModel's shared metadata in the same process
-    SQLModel.metadata.create_all(engine, tables=[Thread.__table__, Message.__table__])
+    SQLModel.metadata.create_all(
+        engine, tables=[Thread.__table__, Message.__table__, Feedback.__table__]
+    )
 
 
 def ensure_thread(thread_id: str, session: Session) -> Thread:
@@ -64,11 +76,15 @@ def ensure_thread(thread_id: str, session: Session) -> Thread:
     return thread
 
 
-def save_message(thread_id: str, role: str, content: str) -> None:
+def save_message(thread_id: str, role: str, content: str) -> int:
+    """Returns the new message's id, so feedback can be attached to it later."""
     with Session(engine) as session:
         ensure_thread(thread_id, session)
-        session.add(Message(thread_id=thread_id, role=role, content=content))
+        msg = Message(thread_id=thread_id, role=role, content=content)
+        session.add(msg)
         session.commit()
+        session.refresh(msg)
+        return msg.id
 
 
 def get_messages(thread_id: str, limit: Optional[int] = None) -> List[dict]:
@@ -95,3 +111,51 @@ def list_threads(limit: int = 50) -> List[dict]:
         {"id": t.id, "created_at": t.created_at.isoformat(), "updated_at": t.updated_at.isoformat()}
         for t in rows
     ]
+
+
+def clear_thread(thread_id: str) -> int:
+    """
+    Deletes every message in a thread (and any feedback attached to them),
+    but keeps the Thread row itself so the id stays valid for continued use.
+    Returns how many messages were removed.
+    """
+    with Session(engine) as session:
+        messages = session.exec(select(Message).where(Message.thread_id == thread_id)).all()
+        message_ids = [m.id for m in messages]
+
+        if message_ids:
+            # feedback rows reference message.id, so they must go first or
+            # the foreign key constraint will reject the message deletes
+            feedback = session.exec(
+                select(Feedback).where(Feedback.message_id.in_(message_ids))
+            ).all()
+            for f in feedback:
+                session.delete(f)
+
+        for m in messages:
+            session.delete(m)
+        session.commit()
+
+    return len(message_ids)
+
+
+def save_feedback(message_id: int, rating: str, comment: Optional[str] = None) -> int:
+    if rating not in ("up", "down"):
+        raise ValueError(f"rating must be 'up' or 'down', got {rating!r}")
+    with Session(engine) as session:
+        fb = Feedback(message_id=message_id, rating=rating, comment=comment)
+        session.add(fb)
+        session.commit()
+        session.refresh(fb)
+        return fb.id
+
+
+def get_feedback_summary() -> dict:
+    """Counts of up/down across all messages -- a quick quality signal."""
+    with Session(engine) as session:
+        rows = session.exec(select(Feedback)).all()
+    return {
+        "up": sum(1 for r in rows if r.rating == "up"),
+        "down": sum(1 for r in rows if r.rating == "down"),
+        "total": len(rows),
+    }

@@ -6,8 +6,8 @@ by db.py) into two vector stores side by side:
     pgvector/pgvector:pg16 image ships it pre-built -- no manual install)
 
 Usage:
-    python -m platform.vectorstore sync
-    python -m platform.vectorstore query "your question here"
+    python -m platforms.vectorstore sync
+    python -m platforms.vectorstore query "your question here"
 """
 import os
 import sys
@@ -181,8 +181,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
             "Usage:\n"
-            "  python -m platform.vectorstore sync\n"
-            '  python -m platform.vectorstore query "your question here"'
+            "  python -m platforms.vectorstore sync\n"
+            '  python -m platforms.vectorstore query "your question here"'
         )
         sys.exit(1)
 
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         print(f"\nDone -- synced {n} chunks to Qdrant and pgvector.")
     elif command == "query":
         if len(sys.argv) < 3:
-            print('Usage: python -m platform.vectorstore query "your question here"')
+            print('Usage: python -m platforms.vectorstore query "your question here"')
             sys.exit(1)
         compare_query(sys.argv[2])
     else:

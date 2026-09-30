@@ -85,6 +85,9 @@ def init_db() -> None:
 
 
 def persist_file_and_chunks(path: Path, file_chunks: List[Dict[str, Any]], session: Session) -> None:
+    if not file_chunks:
+        return
+
     file_hash = _file_hash(path)
 
     existing = session.exec(
@@ -92,22 +95,20 @@ def persist_file_and_chunks(path: Path, file_chunks: List[Dict[str, Any]], sessi
     ).first()
 
     if existing:
-        if existing.hash == file_hash:
+        existing_chunk_count = session.exec(
+            select(Chunk).where(Chunk.file_id == existing.id)
+        ).all()
+        if existing.hash == file_hash and existing_chunk_count:
             print(f"[skip] {path.name}: unchanged since last ingestion")
             return
 
-        old_chunks = session.exec(
-            select(Chunk).where(Chunk.file_id == existing.id)
-        ).all()
-        for c in old_chunks:
+        for c in existing_chunk_count:
             session.delete(c)
         existing.hash = file_hash
         existing.mime = _guess_mime(path)
         existing.page_count = _page_count_from_chunks(file_chunks)
         existing.ingested_at = datetime.now(timezone.utc)
         session.add(existing)
-        session.commit()
-        session.refresh(existing)
         source_file = existing
     else:
         source_file = SourceFile(
@@ -117,11 +118,15 @@ def persist_file_and_chunks(path: Path, file_chunks: List[Dict[str, Any]], sessi
             page_count=_page_count_from_chunks(file_chunks),
         )
         session.add(source_file)
-        session.commit()
-        session.refresh(source_file)  # populates source_file.id
+        session.flush()
 
     texts = [c["text"] for c in file_chunks]
     embeddings = embed_texts(texts)
+    if len(embeddings) != len(file_chunks):
+        raise RuntimeError(
+            f"embedding count mismatch for {path.name}: "
+            f"expected {len(file_chunks)}, got {len(embeddings)}"
+        )
 
     for c, emb in zip(file_chunks, embeddings):
         session.add(
@@ -144,18 +149,18 @@ def persist_folder(folder_path: str, recursive: bool = True) -> None:
 
     chunks_by_file: Dict[str, List[Dict[str, Any]]] = {}
     for chunk in all_chunks:
-        chunks_by_file.setdefault(chunk["source"], []).append(chunk)
+        norm_path = os.path.normpath(chunk["source"])
+        chunks_by_file.setdefault(norm_path, []).append(chunk)
 
     with Session(engine) as session:
         for source_path, file_chunks in chunks_by_file.items():
             persist_file_and_chunks(Path(source_path), file_chunks, session)
 
-
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 2:
-        print("Usage: python -m platform.db <folder_path>")
+        print("Usage: python -m platforms.db <folder_path>")
         sys.exit(1)
 
     init_db()
